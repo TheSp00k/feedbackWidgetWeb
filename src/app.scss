@@ -1,0 +1,61 @@
+html {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  background-color: #888888;
+  p {
+    color: red;
+  }
+  .feedback-widget {
+    background-color: #ffffff;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    $feedsBorder: 1px solid #e0e0e0;
+    $boldFontWeight: 600;
+    .rating-header {
+      .heading {
+        font-size: 16px;
+        font-weight: $boldFontWeight;
+        padding: 15px 0 15px 15px;
+      }
+      border: $feedsBorder;
+      margin-bottom: 15px;
+    }
+    .rating-list {
+      @media (max-width: 992px) {
+        padding-left: 0;
+      }
+
+      .total-feeds {
+        padding: 15px 0;
+        border-top: $feedsBorder;
+        border-bottom: $feedsBorder;
+      }
+      .feedback-list-block {
+        padding-top: 10px;
+        padding-bottom: 25px;
+        border-bottom: $feedsBorder;
+        .feedback-rating-block {
+          padding: 5px 0;
+        }
+        .feedback-headline {
+          font-weight: $boldFontWeight;
+          font-size: 18px;
+          padding-bottom: 5px;
+        }
+        .feedback-date {
+          font-weight: $boldFontWeight;
+          padding-right: 7%;
+        }
+        .feedback-accepted-buyer {
+          font-weight: $boldFontWeight;
+        }
+      }
+    }
+  }
+}
