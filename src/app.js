@@ -47,7 +47,7 @@ if (widgetForm) {
 					<form onSubmit={this.handleSubmit}>
 						<div className="form-group">
 							<label htmlFor="name">Vertinimas</label>
-							<ReactStars count={5} value={1} size={'25px'} color2={'#ffd700'} onChange={this.handleChange}/>
+							<ReactStars count={5} value={1} half={true} size={'25px'} color2={'#ffd700'} onChange={this.handleChange}/>
 						</div>
 						<div className="form-group">
 							<label htmlFor="name">Vardas</label>
@@ -78,7 +78,7 @@ if (widgetForm) {
 }
 
 if (feedbackListDom) {
-	const title = 'Atsiliepimai';
+	const title = 'ATSILIEPIMAI';
 
 	class StarSvgRating extends React.Component {
 
@@ -90,13 +90,14 @@ if (feedbackListDom) {
 		render() {
 			this.parent = this._reactInternalInstance._currentElement._owner._instance;
 			return (
-				<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 512 512">
-					<g id={"icomoon-ignore"}>
-					</g>
-					<path fill={"#ffd700"} stroke={"#ffd700"}
-						  d="M512 198.525l-176.89-25.704-79.11-160.291-79.108 160.291-176.892 25.704 128 124.769-30.216 176.176 158.216-83.179 158.216 83.179-30.217-176.176 128.001-124.769z"></path>
-					<text x={"150"} y={"330"} fill={"param(text) black"} style={{fontSize: '140px'}}>{this.parent.state.totalRating}</text>
-				</svg>
+				<div className="feedback-circle">{this.parent.state.totalRating}</div>
+				// <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 512 512">
+				// 	<g id={"icomoon-ignore"}>
+				// 	</g>
+				// 	<path fill={"#ffd700"} stroke={"#ffd700"}
+				// 		  d="M512 198.525l-176.89-25.704-79.11-160.291-79.108 160.291-176.892 25.704 128 124.769-30.216 176.176 158.216-83.179 158.216 83.179-30.217-176.176 128.001-124.769z"></path>
+				// 	<text x={"150"} y={"330"} fill={"param(text) black"} style={{fontSize: '140px'}}>{this.parent.state.totalRating}</text>
+				// </svg>
 			)
 		}
 	}
@@ -117,7 +118,7 @@ if (feedbackListDom) {
 				});
 			axios.get('http://localhost:3000/api/products/1/feedbacks/count', {
 					params: {
-						where: {totalratingscore: {neq: null}}
+						where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}
 					}
 				})
 				.then(res => {
@@ -130,13 +131,18 @@ if (feedbackListDom) {
 			return (
 				<div className="col-md-4 col-xs-12 rating-header">
 					<div className="heading">{title}</div>
-					<div className="col-xs-12">
-						<ReactStars starClass={'col-xs-2'} count={5} edit={false} value={this.state.totalRating} size={'25px'} color2={'#ffd700'}/>
+
+					<div style={{paddingBottom: '10px'}} className="col-xs-12">
+						<div style={{display: 'inline-block'}}>
+							<StarSvgRating/>
+						</div>
+						<div style={{paddingLeft: '15px',display: 'inline-block',bottom: '6px', position: 'relative'}}>
+							<ReactStars count={5} edit={false} value={parseFloat(this.state.totalRating).toFixed(0)} half={true} size={'30px'} color2={'#ffd700'}/>
+							<div style={{color: '#9b999a', paddingLeft: '5px'}}>
+								{this.state.totalFeedbacks} atsiliepimai
+							</div>
+						</div>
 					</div>
-					<div className="pull-left">
-						<StarSvgRating/>
-					</div>
-					<div style={{paddingTop: '12px'}} className="col-xs-8">Įvertinimų: {this.state.totalFeedbacks}</div>
 				</div>
 			);
 
@@ -152,13 +158,25 @@ if (feedbackListDom) {
 
 		componentWillMount() {
 
-			axios.get('http://localhost:3000/api/products/1/feedbacks/count')
+			axios.get('http://localhost:3000/api/products/1/feedbacks/count', {
+					params: {
+						where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}
+					}
+				})
 				.then(res => {
 					const feedbackCount = res.data.count;
 					this.setState({feedbackCount});
 				});
 
-			axios.get('http://localhost:3000/api/products/1/feedbacks')
+			axios.get('http://localhost:3000/api/products/1/feedbacks', {
+					params: {
+						filter: {
+							where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]},
+							include: 'customer'
+						}
+
+					}
+				})
 				.then(res => {
 					const feedbacks = res.data;
 					this.setState({feedbacks});
@@ -167,27 +185,42 @@ if (feedbackListDom) {
 
 		render() {
 			console.log(this.state);
+			console.log('adasd');
 			const feedbackCount = this.state.feedbackCount;
 			const feedbacks = this.state.feedbacks.map((item, i) => {
 				return <div className="feedback-list-block">
-					<div className="feedback-rating-block">
-						<ReactStars count={5} edit={false} size={'25px'} value={5} color2={'#ffd700'}/>
+					<div className="user-block col-xs-3">
+						<div className="user-name feedback-circle">
+							{item.customer.name.charAt(0)}
+						</div>
+						<div className="clearfix"></div>
+						<div className="user-name">
+							{item.customer.name} {item.customer.surname.charAt(0)}.
+						</div>
+						<div className="feedback-accepted-buyer">
+							{item.purchased ? 'Patvirtintas pirkėjas' : 'Nepatvirtintas pirkėjas'}
+						</div>
 					</div>
-					<div className="feedback-headline">{item.commentheader}</div>
-					<div className="feedback-date pull-left">{moment(item.created).format('YYYY-MM-DD')}</div><div className="feedback-accepted-buyer pull-left"> <FaCheck color={"#4caf50"}/> {item.approved ? 'Patvirtintas pirkėjas' : 'Nepatvirtintas pirkėjas'}</div>
+
+					<div className="col-xs-9 feedback-rating-block">
+						<div className="pull-left feedback-headline ">{item.commentheader}</div>
+						<div className="pull-left ">
+							<ReactStars count={5} edit={false} size={'25px'} value={parseFloat(item.totalratingscore).toFixed(0)} color2={'#ffd700'}/>
+						</div>
+						<div className="clearfix"></div>
+						<div className="feedback-text">{item.commentcontent}</div>
+						<div className="feedback-date">{moment(item.created).format('YYYY-MM-DD')}</div>
+					</div>
 					<div className="clearfix"></div>
-					<p>{item.commentcontent}</p>
 				</div>
 			});
 
 			return (
-				<div>
-					<div>
-						<FeedbackListHeader />
-					</div>
+				<div className="list-root">
+					<FeedbackListHeader />
 					<div className="col-xs-12 col-md-8 rating-list">
-						<div className="total-feeds">Įvertino klientų sk.: {feedbackCount}</div>
-						<div>{feedbacks}</div>
+						<div className="feedback-list-container">{feedbacks}</div>
+						
 					</div>
 				</div>
 			);
