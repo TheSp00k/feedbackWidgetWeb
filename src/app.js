@@ -153,77 +153,115 @@ if (feedbackListDom) {
 
 		constructor(props) {
 			super(props);
-			this.state = {feedbacks: []};
+			this.state = {feedbacks: [], displayWidget: false};
 		}
+
+		// async componentDidMount() {
+		// 	const firstRequest = await axios.get('https://maps.googleapis.com/maps/api/geocode/json?&address=' + this.props.p1);
+		// 	const secondRequest = await axios.get('https://maps.googleapis.com/maps/api/geocode/json?&address=' + this.props.p2);
+		// 	const thirdRequest = await axios.get('https://maps.googleapis.com/maps/api/directions/json?origin=place_id:' + firstRequest.data.results.place_id + '&destination=place_id:' + secondRequest.data.results.place_id + '&key=' + 'API-KEY-HIDDEN');
+		//
+		// 	this.setState({
+		// 		p1Location: firstRequest.data,
+		// 		p2Location: SecondRequest.data,
+		// 		route: thirdRequest.data,
+		// 	});
+		// }
 
 		componentWillMount() {
 
-			axios.get('http://localhost:3000/api/products/1/feedbacks/count', {
-					params: {
-						where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}
-					}
-				})
-				.then(res => {
-					const feedbackCount = res.data.count;
-					this.setState({feedbackCount});
-				});
+			axios.get('http://localhost:3000/api/clients/1').then(res => {
+				const client = res.data;
+				var displayWidget = client.displaywidget;
+				this.setState({displayWidget});
+				console.log('client');
+				console.log(client);
+				// if (client.displaywidget) {
+				//
+				// }
+			});
 
-			axios.get('http://localhost:3000/api/products/1/feedbacks', {
-					params: {
-						filter: {
-							where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]},
-							include: 'customer'
+			if (this.state.displayWidget) {
+				axios.get('http://localhost:3000/api/products/1/feedbacks/count', {
+						params: {
+							where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}
 						}
+					})
+					.then(res => {
+						const feedbackCount = res.data.count;
+						this.setState({feedbackCount});
+					});
 
-					}
-				})
-				.then(res => {
-					const feedbacks = res.data;
-					this.setState({feedbacks});
-				});
+				axios.get('http://localhost:3000/api/products/1/feedbacks', {
+						params: {
+							filter: {
+								where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]},
+								include: 'customer'
+							}
+
+						}
+					})
+					.then(res => {
+						const feedbacks = res.data;
+						this.setState({feedbacks});
+					});
+			}
+		}
+
+		componentDidMount() {
+
 		}
 
 		render() {
 			console.log(this.state);
+			// if (this.state.client.displaywidget) {
+			console.log(this.state.displayWidget);
 			console.log('adasd');
-			const feedbackCount = this.state.feedbackCount;
-			const feedbacks = this.state.feedbacks.map((item, i) => {
-				return <div className="feedback-list-block">
-					<div className="user-block col-xs-3">
-						<div className="user-name feedback-circle">
-							{item.customer.name.charAt(0)}
+			if (this.state.displayWidget) {
+				const feedbackCount = this.state.feedbackCount;
+				const feedbacks = this.state.feedbacks.map((item, i) => {
+					return <div className="feedback-list-block">
+						<div className="user-block col-xs-3">
+							<div className="user-name feedback-circle">
+								{item.customer.name.charAt(0)}
+							</div>
+							<div className="clearfix"></div>
+							<div className="user-name">
+								{item.customer.name} {item.customer.surname.charAt(0)}.
+							</div>
+							<div className="feedback-accepted-buyer">
+								{item.purchased ? 'Patvirtintas pirkėjas' : 'Nepatvirtintas pirkėjas'}
+							</div>
+						</div>
+
+						<div className="col-xs-9 feedback-rating-block">
+							<div className="pull-left feedback-headline ">{item.commentheader}</div>
+							<div className="pull-left ">
+								<ReactStars count={5} edit={false} size={'25px'} value={parseFloat(item.totalratingscore).toFixed(0)} color2={'#ffd700'}/>
+							</div>
+							<div className="clearfix"></div>
+							<div className="feedback-text">{item.commentcontent}</div>
+							<div className="feedback-date">{moment(item.created).format('YYYY-MM-DD')}</div>
 						</div>
 						<div className="clearfix"></div>
-						<div className="user-name">
-							{item.customer.name} {item.customer.surname.charAt(0)}.
-						</div>
-						<div className="feedback-accepted-buyer">
-							{item.purchased ? 'Patvirtintas pirkėjas' : 'Nepatvirtintas pirkėjas'}
-						</div>
 					</div>
+				});
 
-					<div className="col-xs-9 feedback-rating-block">
-						<div className="pull-left feedback-headline ">{item.commentheader}</div>
-						<div className="pull-left ">
-							<ReactStars count={5} edit={false} size={'25px'} value={parseFloat(item.totalratingscore).toFixed(0)} color2={'#ffd700'}/>
-						</div>
-						<div className="clearfix"></div>
-						<div className="feedback-text">{item.commentcontent}</div>
-						<div className="feedback-date">{moment(item.created).format('YYYY-MM-DD')}</div>
-					</div>
-					<div className="clearfix"></div>
-				</div>
-			});
+				return (
+					<div className="list-root">
+						<FeedbackListHeader />
+						<div className="col-xs-12 col-md-8 rating-list">
+							<div className="feedback-list-container">{feedbacks}</div>
 
-			return (
-				<div className="list-root">
-					<FeedbackListHeader />
-					<div className="col-xs-12 col-md-8 rating-list">
-						<div className="feedback-list-container">{feedbacks}</div>
-						
+						</div>
 					</div>
-				</div>
-			);
+				);
+			} else {
+				return false;
+			}
+
+			// }
+
 		}
 	}
 
@@ -252,7 +290,6 @@ if (feedbackListDom) {
 	// 		);
 	// 	}
 	// }
-
 	ReactDOM.render(
 		<FeedbackList/>,
 		feedbackListDom
