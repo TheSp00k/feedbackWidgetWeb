@@ -84,20 +84,11 @@ if (feedbackListDom) {
 
 		constructor(props) {
 			super(props);
-			console.log(props);
 		}
 
 		render() {
-			this.parent = this._reactInternalInstance._currentElement._owner._instance;
 			return (
-				<div className="feedback-circle">{this.parent.state.totalRating}</div>
-				// <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 512 512">
-				// 	<g id={"icomoon-ignore"}>
-				// 	</g>
-				// 	<path fill={"#ffd700"} stroke={"#ffd700"}
-				// 		  d="M512 198.525l-176.89-25.704-79.11-160.291-79.108 160.291-176.892 25.704 128 124.769-30.216 176.176 158.216-83.179 158.216 83.179-30.217-176.176 128.001-124.769z"></path>
-				// 	<text x={"150"} y={"330"} fill={"param(text) black"} style={{fontSize: '140px'}}>{this.parent.state.totalRating}</text>
-				// </svg>
+				<div className="feedback-circle">{this.props.totalRating}</div>
 			)
 		}
 	}
@@ -106,46 +97,43 @@ if (feedbackListDom) {
 
 		constructor(props) {
 			super(props);
-
-			this.state = {feedbacks: []};
+			this.state = {feedbacks: [], totalRating: null, totalFeedbacks: null};
 		}
 
-		componentWillMount() {
-			axios.get('http://localhost:3000/api/products/totalratingscore?productid=1')
-				.then(res => {
-					const totalRating = res.data;
-					this.setState({totalRating});
-				});
-			axios.get('http://localhost:3000/api/products/1/feedbacks/count', {
-					params: {
-						where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}
-					}
-				})
-				.then(res => {
-					const totalFeedbacks = res.data.count;
-					this.setState({totalFeedbacks});
-				});
+		async componentWillMount() {
+			const totalRating = await axios.get(`http://localhost:3000/api/products/totalratingscore?productid=${this.props.productId}`);
+			if (totalRating) {
+				this.setState({totalRating: totalRating.data});
+			}
+			const totalFeedbacks = await axios.get(`http://localhost:3000/api/products/${this.props.productId}/feedbacks/count`, {
+				params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
+			});
+			if (totalFeedbacks) {
+				this.setState({totalFeedbacks: totalFeedbacks.data.count});
+			}
 		}
 
 		render() {
-			return (
-				<div className="col-md-4 col-xs-12 rating-header">
-					<div className="heading">{title}</div>
-
-					<div style={{paddingBottom: '10px'}} className="col-xs-12">
-						<div style={{display: 'inline-block'}}>
-							<StarSvgRating/>
-						</div>
-						<div style={{paddingLeft: '15px',display: 'inline-block',bottom: '6px', position: 'relative'}}>
-							<ReactStars count={5} edit={false} value={parseFloat(this.state.totalRating).toFixed(0)} half={true} size={'30px'} color2={'#ffd700'}/>
-							<div style={{color: '#9b999a', paddingLeft: '5px'}}>
-								{this.state.totalFeedbacks} atsiliepimai
+			if (this.state.totalRating && this.state.totalFeedbacks) {
+				return (
+					<div className="col-md-4 col-xs-12 rating-header">
+						<div className="heading">{title}</div>
+						<div style={{paddingBottom: '10px'}} className="col-xs-12">
+							<div style={{display: 'inline-block'}}>
+								<StarSvgRating totalRating={this.state.totalRating}/>
+							</div>
+							<div style={{paddingLeft: '15px',display: 'inline-block',bottom: '6px', position: 'relative'}}>
+								<ReactStars count={5} edit={false} value={parseFloat(this.state.totalRating).toFixed(0)} half={true} size={'30px'} color2={'#ffd700'}/>
+								<div style={{color: '#9b999a', paddingLeft: '5px'}}>
+									{this.state.totalFeedbacks} atsiliepimai
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			);
-
+				);
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -153,72 +141,28 @@ if (feedbackListDom) {
 
 		constructor(props) {
 			super(props);
-			this.state = {feedbacks: [], displayWidget: false};
+			this.state = {feedbacks: [], client: {}, productId: null};
 		}
 
-		// async componentDidMount() {
-		// 	const firstRequest = await axios.get('https://maps.googleapis.com/maps/api/geocode/json?&address=' + this.props.p1);
-		// 	const secondRequest = await axios.get('https://maps.googleapis.com/maps/api/geocode/json?&address=' + this.props.p2);
-		// 	const thirdRequest = await axios.get('https://maps.googleapis.com/maps/api/directions/json?origin=place_id:' + firstRequest.data.results.place_id + '&destination=place_id:' + secondRequest.data.results.place_id + '&key=' + 'API-KEY-HIDDEN');
-		//
-		// 	this.setState({
-		// 		p1Location: firstRequest.data,
-		// 		p2Location: SecondRequest.data,
-		// 		route: thirdRequest.data,
-		// 	});
-		// }
-
-		componentWillMount() {
-
-			axios.get('http://localhost:3000/api/clients/1').then(res => {
-				const client = res.data;
-				var displayWidget = client.displaywidget;
-				this.setState({displayWidget});
-				console.log('client');
-				console.log(client);
-				// if (client.displaywidget) {
-				//
-				// }
-			});
-
-			if (this.state.displayWidget) {
-				axios.get('http://localhost:3000/api/products/1/feedbacks/count', {
-						params: {
-							where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}
-						}
-					})
-					.then(res => {
-						const feedbackCount = res.data.count;
-						this.setState({feedbackCount});
-					});
-
-				axios.get('http://localhost:3000/api/products/1/feedbacks', {
-						params: {
-							filter: {
-								where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]},
-								include: 'customer'
-							}
-
-						}
-					})
-					.then(res => {
-						const feedbacks = res.data;
-						this.setState({feedbacks});
-					});
+		async componentDidMount() {
+			const clientId = feedbackListDom.getAttribute('data-clientid');
+			const productId = feedbackListDom.getAttribute('data-producid');
+			const client = await axios.get(`http://localhost:3000/api/clients/${clientId}`);
+			let feedbacks = [];
+			if (client.data.displaywidget) {
+				feedbacks = await axios.get(`http://localhost:3000/api/products/${productId}/feedbacks`, {
+					params: {
+						filter: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}, include: 'customer'}
+					}
+				});
+				this.setState({feedbacks: feedbacks.data});
+				this.setState({productId: productId});
 			}
-		}
-
-		componentDidMount() {
-
+			this.setState({client: client.data});
 		}
 
 		render() {
-			console.log(this.state);
-			// if (this.state.client.displaywidget) {
-			console.log(this.state.displayWidget);
-			console.log('adasd');
-			if (this.state.displayWidget) {
-				const feedbackCount = this.state.feedbackCount;
+			if (this.state.client.displaywidget) {
 				const feedbacks = this.state.feedbacks.map((item, i) => {
 					return <div className="feedback-list-block">
 						<div className="user-block col-xs-3">
@@ -249,47 +193,17 @@ if (feedbackListDom) {
 
 				return (
 					<div className="list-root">
-						<FeedbackListHeader />
+						<FeedbackListHeader productId={this.state.productId}/>
 						<div className="col-xs-12 col-md-8 rating-list">
 							<div className="feedback-list-container">{feedbacks}</div>
-
 						</div>
 					</div>
 				);
 			} else {
 				return false;
 			}
-
-			// }
-
 		}
 	}
-
-	// class FeedbackBlock extends React.Component {
-	//
-	//
-	// 	render() {
-	// 		const feedbacks = this.state.feedbacks.map((item, i) => {
-	// 			return <div>
-	// 				<strong>{item.name}</strong>
-	// 				<span> {item.approved ? 'Patvirtintas pirkėjas' : 'Nepatvirtintas pirkėjas'}</span>
-	// 				<div>
-	// 					<ReactStars count={5} edit={false} size={25} value={5} color2={'#ffd700'}/>
-	// 				</div>
-	// 				<h5>{item.commentheader}</h5>
-	// 				<p>{item.commentcontent}</p>
-	// 			</div>
-	// 		});
-	//
-	// 		// const rating = this.props.feedback.rating;
-	//
-	// 		return (
-	// 			<div>
-	// 				{feedbacks}
-	// 			</div>
-	// 		);
-	// 	}
-	// }
 	ReactDOM.render(
 		<FeedbackList/>,
 		feedbackListDom

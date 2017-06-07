@@ -187,7 +187,6 @@ class ReactStars extends Component {
   renderStars() {
     const { halfStar, stars, uniqueness } = this.state
     let { color1, color2, size, char, half, starClass } = this.state.config
-    console.log(stars, starClass);
     return stars.map((star, i) => {
 
       // let starClass = starClass || '';
