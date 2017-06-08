@@ -134,5 +134,113 @@ body {
         }
       }
     }
+    .pagination-container {
+      margin-top: 1em;
+      padding-top: 2em;
+      border-top: 1px solid #d7dadb;
+      text-align: center;
+    }
+    ul.pagination {
+      // Import Roboto font
+      @import url(https://fonts.googleapis.com/css?family=Roboto:300);
+      @import url(http://weloveiconfonts.com/api/?family=entypo);
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      line-height: 24px;
+
+      li {
+        list-style-type: none;
+        display: inline-block;
+        border-right: 1px solid #d7dadb;
+
+        transform: scale(1) rotate(19deg) translateX(0px) translateY(0px) skewX(-10deg) skewY(-20deg);
+        a {
+          padding: 1.1em 1.6em;
+          display: inline-block;
+          text-decoration: none;
+          color: #8b969c;
+
+          transform: scale(1) rotate(0deg) translateX(0px) translateY(0px) skewX(20deg) skewY(0deg);
+        }
+      }
+
+      li:hover,
+      li.active {
+        background-color: #fa4248;
+        border-right: 1px solid #fff;
+
+        a {
+          color: #fff;
+        }
+
+      }
+
+      //.pagination-item--wide.first {
+      //  margin: 0 1em 0 0;
+      //}
+      //
+      //.pagination-item--wide.last {
+      //  margin: 0 0 0 1em;
+      //}
+
+      li.previous, li.next {
+        text-decoration: none;
+        color: #8b969c;
+        padding: 0 1.6em;
+      }
+      li.next {
+        border-right-color: #ffffff;
+      }
+      li.previous:hover, li.next:hover {
+
+        background-color: #ffffff;
+        a {
+          color: #fa4248;
+        }
+      }
+
+      li.previous:hover {
+        border-right-color: #d7dadb;
+      }
+
+      li.previous:before,
+      li.next:after {
+        font-family: 'entypo';
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+
+        // Better Font Rendering
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      li.previous::before {
+        content: "\E765";
+        margin-right: 0.5em;
+      }
+
+      li.next::after {
+        content: "\E766";
+        margin-left: 0.5em;
+      }
+
+      li.previous {
+        margin: 0 1em 0 0;
+      }
+      li.next {
+        margin: 0 0 0 1em;
+      }
+      li.disabled {
+
+      }
+      li.active {
+
+      }
+    }
   }
 }
+

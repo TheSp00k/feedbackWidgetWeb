@@ -2,13 +2,14 @@ const bootstrap = require('./bootstrap.scss');
 const bootstrapTheme = require('./bootstrap-theme.scss');
 const css = require('./app.scss');
 
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import ReactStars from './modules/react-stars';
 import axios from 'axios';
 import moment from 'moment';
-import FaCheck from 'react-icons/lib/fa/check';
-import starSvg from "./images/star-full.svg";
+import ReactPaginate from 'react-paginate';
+
+
 
 var widgetForm = document.getElementById('feedback-widget-form');
 var feedbackListDom = document.getElementById('feedback-widget-list');
@@ -105,16 +106,10 @@ if (feedbackListDom) {
 			if (totalRating) {
 				this.setState({totalRating: totalRating.data});
 			}
-			const totalFeedbacks = await axios.get(`http://localhost:3000/api/products/${this.props.productId}/feedbacks/count`, {
-				params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
-			});
-			if (totalFeedbacks) {
-				this.setState({totalFeedbacks: totalFeedbacks.data.count});
-			}
 		}
 
 		render() {
-			if (this.state.totalRating && this.state.totalFeedbacks) {
+			if (this.state.totalRating && this.props.totalFeedbacks) {
 				return (
 					<div className="col-md-4 col-xs-12 rating-header">
 						<div className="heading">{title}</div>
@@ -141,25 +136,56 @@ if (feedbackListDom) {
 
 		constructor(props) {
 			super(props);
-			this.state = {feedbacks: [], client: {}, productId: null};
+			this.state = {offset: 0, perPage: 3, feedbacks: [], client: {}, productId: null};
+			this.handlePageClick = this.handlePageClick.bind(this);
+		}
+
+		async loadFeedbacks() {
+			const productId = feedbackListDom.getAttribute('data-producid');
+			let feedbacks = await axios.get(`http://localhost:3000/api/products/${productId}/feedbacks`, {
+				params: {
+					filter: {
+						where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]},
+						include: 'customer',
+						limit: this.state.perPage,
+						skip: this.state.offset
+					}
+				}
+			});
+			this.setState({feedbacks: feedbacks.data});
+			this.setState({productId: productId});
 		}
 
 		async componentDidMount() {
 			const clientId = feedbackListDom.getAttribute('data-clientid');
-			const productId = feedbackListDom.getAttribute('data-producid');
+
 			const client = await axios.get(`http://localhost:3000/api/clients/${clientId}`);
 			let feedbacks = [];
 			if (client.data.displaywidget) {
-				feedbacks = await axios.get(`http://localhost:3000/api/products/${productId}/feedbacks`, {
-					params: {
-						filter: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}, include: 'customer'}
-					}
+				await this.loadFeedbacks();
+				const totalFeedbacks = await axios.get(`http://localhost:3000/api/products/${this.state.productId}/feedbacks/count`, {
+					params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
 				});
-				this.setState({feedbacks: feedbacks.data});
-				this.setState({productId: productId});
+				if (totalFeedbacks) {
+					this.setState({totalFeedbacks: totalFeedbacks.data.count});
+				}
+
+				this.setState({pageCount: Math.ceil(totalFeedbacks.data.count / this.state.perPage)});
 			}
 			this.setState({client: client.data});
 		}
+
+
+
+		handlePageClick (data) {
+			let selected = data.selected;
+			console.log(this.state, selected);
+			let offset = Math.ceil(selected * 2);
+
+			this.setState({offset: offset}, () => {
+				this.loadFeedbacks();
+			});
+		};
 
 		render() {
 			if (this.state.client.displaywidget) {
@@ -193,9 +219,22 @@ if (feedbackListDom) {
 
 				return (
 					<div className="list-root">
-						<FeedbackListHeader productId={this.state.productId}/>
+						<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} productId={this.state.productId}/>
 						<div className="col-xs-12 col-md-8 rating-list">
 							<div className="feedback-list-container">{feedbacks}</div>
+							<div className="pagination-container">
+								<ReactPaginate previousLabel={"previous"}
+											   nextLabel={"next"}
+											   breakLabel={<a href="">...</a>}
+											   breakClassName={"break-me"}
+											   pageCount={this.state.pageCount}
+											   marginPagesDisplayed={2}
+											   pageRangeDisplayed={5}
+											   onPageChange={this.handlePageClick}
+											   containerClassName={"pagination"}
+											   subContainerClassName={"pages pagination"}
+											   activeClassName={"active"}/>
+							</div>
 						</div>
 					</div>
 				);
