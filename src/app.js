@@ -10,7 +10,6 @@ import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 
 
-
 var widgetForm = document.getElementById('feedback-widget-form');
 var feedbackListDom = document.getElementById('feedback-widget-list');
 
@@ -176,8 +175,7 @@ if (feedbackListDom) {
 		}
 
 
-
-		handlePageClick (data) {
+		handlePageClick(data) {
 			let selected = data.selected;
 			console.log(this.state, selected);
 			let offset = Math.ceil(selected * 2);
@@ -222,19 +220,22 @@ if (feedbackListDom) {
 						<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} productId={this.state.productId}/>
 						<div className="col-xs-12 col-md-8 rating-list">
 							<div className="feedback-list-container">{feedbacks}</div>
-							<div className="pagination-container">
-								<ReactPaginate previousLabel={"previous"}
-											   nextLabel={"next"}
-											   breakLabel={<a href="">...</a>}
-											   breakClassName={"break-me"}
-											   pageCount={this.state.pageCount}
-											   marginPagesDisplayed={2}
-											   pageRangeDisplayed={5}
-											   onPageChange={this.handlePageClick}
-											   containerClassName={"pagination"}
-											   subContainerClassName={"pages pagination"}
-											   activeClassName={"active"}/>
-							</div>
+							{this.state.totalFeedbacks > this.state.perPage &&
+
+								<div className="pagination-container">
+									<ReactPaginate previousLabel={"previous"}
+									nextLabel={"next"}
+									breakLabel={<a href="">...</a>}
+									breakClassName={"break-me"}
+									pageCount={this.state.pageCount}
+									marginPagesDisplayed={2}
+									pageRangeDisplayed={5}
+									onPageChange={this.handlePageClick}
+									containerClassName={"pagination"}
+									subContainerClassName={"pages pagination"}
+									activeClassName={"active"}/>
+								</div>
+							}
 						</div>
 					</div>
 				);
