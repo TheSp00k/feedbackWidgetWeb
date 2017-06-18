@@ -88,7 +88,7 @@ if (feedbackListDom) {
 
 		render() {
 			return (
-				<div className="feedback-circle">{this.props.totalRating}</div>
+				<div itemProp="ratingValue" className="feedback-circle">{this.props.totalRating}</div>
 			)
 		}
 	}
@@ -112,14 +112,14 @@ if (feedbackListDom) {
 				return (
 					<div className="col-md-4 col-xs-12 rating-header">
 						<div className="heading">{title}</div>
-						<div style={{paddingBottom: '10px'}} className="col-xs-12">
+						<div itemProp="aggregateRating" itemScope itemType="http://schema.org/AggregateRating" style={{paddingBottom: '10px'}} className="col-xs-12">
 							<div style={{display: 'inline-block'}}>
 								<StarSvgRating totalRating={this.state.totalRating}/>
 							</div>
 							<div style={{paddingLeft: '15px',display: 'inline-block',bottom: '6px', position: 'relative'}}>
 								<ReactStars count={5} edit={false} value={parseFloat(this.state.totalRating).toFixed(0)} half={true} size={'30px'} color2={'#ffd700'}/>
 								<div style={{color: '#9b999a', paddingLeft: '5px'}}>
-									{this.state.totalFeedbacks} atsiliepimai
+									<span itemProp="reviewCount">{this.props.totalFeedbacks}</span> atsiliepimai
 								</div>
 							</div>
 						</div>
@@ -222,19 +222,19 @@ if (feedbackListDom) {
 							<div className="feedback-list-container">{feedbacks}</div>
 							{this.state.totalFeedbacks > this.state.perPage &&
 
-								<div className="pagination-container">
-									<ReactPaginate previousLabel={"previous"}
-									nextLabel={"next"}
-									breakLabel={<a href="">...</a>}
-									breakClassName={"break-me"}
-									pageCount={this.state.pageCount}
-									marginPagesDisplayed={2}
-									pageRangeDisplayed={5}
-									onPageChange={this.handlePageClick}
-									containerClassName={"pagination"}
-									subContainerClassName={"pages pagination"}
-									activeClassName={"active"}/>
-								</div>
+							<div className="pagination-container">
+								<ReactPaginate previousLabel={"ankstesnis"}
+											   nextLabel={"kitas"}
+											   breakLabel={<a href="">...</a>}
+											   breakClassName={"break-me"}
+											   pageCount={this.state.pageCount}
+											   marginPagesDisplayed={2}
+											   pageRangeDisplayed={5}
+											   onPageChange={this.handlePageClick}
+											   containerClassName={"pagination modal-4"}
+											   subContainerClassName={"pages pagination"}
+											   activeClassName={"active"}/>
+							</div>
 							}
 						</div>
 					</div>

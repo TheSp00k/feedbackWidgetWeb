@@ -145,102 +145,105 @@ body {
       @import url(https://fonts.googleapis.com/css?family=Roboto:300);
       @import url(http://weloveiconfonts.com/api/?family=entypo);
       font-family: 'Roboto', sans-serif;
-      font-size: 16px;
-      line-height: 24px;
-
+      list-style: none;
+      display: inline-block;
+      padding: 0;
+      margin-top: 10px;
       li {
-        list-style-type: none;
-        display: inline-block;
-        border-right: 1px solid #d7dadb;
-
-        transform: scale(1) rotate(19deg) translateX(0px) translateY(0px) skewX(-10deg) skewY(-20deg);
-        a {
-          padding: 1.1em 1.6em;
-          display: inline-block;
-          text-decoration: none;
-          color: #8b969c;
-
-          transform: scale(1) rotate(0deg) translateX(0px) translateY(0px) skewX(20deg) skewY(0deg);
-        }
+        display: inline;
+        text-align: center;
       }
-
-      li:hover,
-      li.active {
-        background-color: #fa7e28;
-        border-right: 1px solid #fff;
-
-        a {
-          color: #fff;
-        }
-
-      }
-
-      //.pagination-item--wide.first {
-      //  margin: 0 1em 0 0;
-      //}
-      //
-      //.pagination-item--wide.last {
-      //  margin: 0 0 0 1em;
-      //}
-
-      li.previous, li.next {
+      a {
+        float: left;
+        display: block;
+        font-size: 14px;
         text-decoration: none;
-        color: #8b969c;
-        padding: 0 1.6em;
-      }
-      li.next {
-        border-right-color: #ffffff;
-      }
-      li.previous:hover, li.next:hover {
-
-        background-color: #ffffff;
-        a {
-          color: #fa7e28;
+        padding: 5px 12px;
+        color: #fff;
+        margin-left: -1px;
+        border: 1px solid transparent;
+        line-height: 1.5;
+        &.active {
+          cursor: default;
         }
-      }
-
-      li.previous:hover {
-        border-right-color: #d7dadb;
-      }
-
-      li.previous:before,
-      li.next:after {
-        font-family: 'entypo';
-        speak: none;
-        font-style: normal;
-        font-weight: normal;
-        font-variant: normal;
-        text-transform: none;
-        line-height: 1;
-
-        // Better Font Rendering
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-
-      li.previous::before {
-        content: "\E765";
-        margin-right: 0.5em;
-      }
-
-      li.next::after {
-        content: "\E766";
-        margin-left: 0.5em;
-      }
-
-      li.previous {
-        margin: 0 1em 0 0;
-      }
-      li.next {
-        margin: 0 0 0 1em;
-      }
-      li.disabled {
-
-      }
-      li.active {
-
+        &:active {
+          outline: none;
+        }
       }
     }
+    .modal-4 {
+      li {
+        &:focus {
+          outline: none;
+        }
+        &.previous a {
+          background-color: inherit;
+          width: 80px;
+          text-align: left;
+          color: #c86521;
+          &:hover {
+            background-color: inherit;
+            color: #FFA500;
+          }
+          &::before {
+            font-family: 'entypo';
+            content: "\E765";
+            margin-right: 0.5em;
+          }
+
+
+        }
+        &.next a {
+          background-color: #fff;
+          width: 45px;
+          text-align: right;
+          color: #c86521;
+          &:hover {
+            color: #FFA500;
+            background-color: inherit;
+          }
+          &::after {
+            font-family: 'entypo';
+            content: "\E766";
+            margin-left: 0.5em;
+          }
+        }
+        a {
+          cursor: pointer;
+          margin: 0 5px;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          line-height: 30px;
+          border-radius: 100%;
+          background-color: #e3e3e3;
+          color: #000;
+
+          &:hover {
+            background-color: #FFA500;
+            color: #fff;
+          }
+          &:focus {
+            outline: none;
+          }
+        }
+
+        &.disabled a {
+          color: #eab58f;
+          &:hover {
+            color: #eab58f;
+          }
+        }
+        &.active a, &:active a {
+          background-color: #c86521;
+          color: #fff;
+        }
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+
   }
 }
 
