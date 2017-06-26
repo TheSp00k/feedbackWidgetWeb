@@ -101,7 +101,7 @@ if (feedbackListDom) {
 		}
 
 		async componentWillMount() {
-			const totalRating = await axios.get(`http://localhost:3000/api/products/totalratingscore?productid=${this.props.productId}`);
+			const totalRating = await axios.get(`http://localhost:3000/products/totalratingscore?productid=${this.props.productId}`);
 			if (totalRating) {
 				this.setState({totalRating: totalRating.data});
 			}
@@ -135,13 +135,13 @@ if (feedbackListDom) {
 
 		constructor(props) {
 			super(props);
-			this.state = {offset: 0, perPage: 3, feedbacks: [], client: {}, productId: null};
+			this.state = {offset: 0, perPage: 10, feedbacks: [], client: {}, productId: null};
 			this.handlePageClick = this.handlePageClick.bind(this);
 		}
 
 		async loadFeedbacks() {
 			const productId = feedbackListDom.getAttribute('data-producid');
-			let feedbacks = await axios.get(`http://localhost:3000/api/products/${productId}/feedbacks`, {
+			let feedbacks = await axios.get(`http://localhost:3000/products/${productId}/feedbacks`, {
 				params: {
 					filter: {
 						where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]},
@@ -158,11 +158,11 @@ if (feedbackListDom) {
 		async componentDidMount() {
 			const clientId = feedbackListDom.getAttribute('data-clientid');
 
-			const client = await axios.get(`http://localhost:3000/api/clients/${clientId}`);
+			const client = await axios.get(`http://localhost:3000/clients/${clientId}`);
 			let feedbacks = [];
 			if (client.data.displaywidget) {
 				await this.loadFeedbacks();
-				const totalFeedbacks = await axios.get(`http://localhost:3000/api/products/${this.state.productId}/feedbacks/count`, {
+				const totalFeedbacks = await axios.get(`http://localhost:3000/products/${this.state.productId}/feedbacks/count`, {
 					params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
 				});
 				if (totalFeedbacks) {
@@ -203,7 +203,10 @@ if (feedbackListDom) {
 						</div>
 
 						<div className="col-xs-9 feedback-rating-block">
+
+							{this.state.client.showheader &&
 							<div className="pull-left feedback-headline ">{item.commentheader}</div>
+							}
 							<div className="pull-left ">
 								<ReactStars count={5} edit={false} size={'25px'} value={parseFloat(item.totalratingscore).toFixed(0)} color2={'#ffd700'}/>
 							</div>
