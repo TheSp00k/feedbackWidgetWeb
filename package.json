@@ -17,7 +17,6 @@
     "react-dom": "^15.4.2",
     "react-icons": "^2.2.3",
     "react-paginate": "^4.4.2",
-    "react-stars": "2.2.1",
     "webpack": "^2.2.1"
   },
   "devDependencies": {

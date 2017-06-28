@@ -5,9 +5,8 @@ const webpack = require('webpack');
 
 module.exports = {
 	entry: {
-		app: './src/app.js',
-		stars: './src/modules/react-stars.js',
-		contact: './src/contact.js'
+		app: ['./src/app.js', './src/modules/react-stars.js']
+		// stars: './src/modules/react-stars.js'
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist'),
@@ -57,15 +56,7 @@ module.exports = {
 				collapseWhitespace: true
 			},
 			hash: true,
-			excludeChunks: ['contact'],
 			template: './src/index.html'
-		}),
-		new HtmlWebpackPlugin({
-			title: 'Contact page',
-			hash: true,
-			chunks: ['contact'],
-			filename: 'contact.html',
-			template: './src/contact.html'
 		}),
 		new ExtractTextPlugin({
 			filename: 'app.css',
@@ -82,7 +73,12 @@ module.exports = {
 			disable: true,
 			allChunks: true
 		}),
+		// new webpack.optimize.CommonsChunkPlugin({
+		// 	name: 'app',
+		// 	chunks: ['app', 'stars']
+		// }),
 		new webpack.HotModuleReplacementPlugin(),
 		new webpack.NamedModulesPlugin()
+		
 	]
 };

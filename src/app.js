@@ -10,6 +10,15 @@ import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 
 
+
+let apiUrl;
+if (process.env.NODE_ENV == "production") {
+	apiUrl = '//52.211.101.202:3001';
+} else {
+	apiUrl = '//localhost:3000';
+}
+
+
 var widgetForm = document.getElementById('feedback-widget-form');
 var feedbackListDom = document.getElementById('feedback-widget-list');
 
@@ -101,7 +110,7 @@ if (feedbackListDom) {
 		}
 
 		async componentWillMount() {
-			const totalRating = await axios.get(`http://localhost:3000/products/totalratingscore?productid=${this.props.productId}`);
+			const totalRating = await axios.get(`${apiUrl}/products/totalratingscore?productid=${this.props.productId}`);
 			if (totalRating) {
 				this.setState({totalRating: totalRating.data});
 			}
@@ -139,12 +148,25 @@ if (feedbackListDom) {
 			this.handlePageClick = this.handlePageClick.bind(this);
 		}
 
+
+		async authenticate() {
+			const domain = window.location.hostname;
+			const appId = feedbackListDom.getAttribute('data-appid');
+			let client = await axios.get(`${apiUrl}/clients/authappid`, {
+				params: {appid: appId, domain: domain}
+			});
+			if (client.id) {
+				this.setState({client: client});
+			}
+		}
+		
+
 		async loadFeedbacks() {
 			const productId = feedbackListDom.getAttribute('data-producid');
-			let feedbacks = await axios.get(`http://localhost:3000/products/${productId}/feedbacks`, {
+			let feedbacks = await axios.get(`${apiUrl}/products/${productId}/feedbacks`, {
 				params: {
 					filter: {
-						where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]},
+						where: {and: [{clientid: this.state.client.id}, {totalratingscore: {neq: null}}, {approved: 1}]},
 						include: 'customer',
 						limit: this.state.perPage,
 						skip: this.state.offset
@@ -156,13 +178,14 @@ if (feedbackListDom) {
 		}
 
 		async componentDidMount() {
-			const clientId = feedbackListDom.getAttribute('data-clientid');
+			await this.authenticate();
+			// const clientId = feedbackListDom.getAttribute('data-clientid');
 
-			const client = await axios.get(`http://localhost:3000/clients/${clientId}`);
+			const client = await axios.get(`${apiUrl}/clients/${this.state.client.id}`);
 			let feedbacks = [];
 			if (client.data.displaywidget) {
 				await this.loadFeedbacks();
-				const totalFeedbacks = await axios.get(`http://localhost:3000/products/${this.state.productId}/feedbacks/count`, {
+				const totalFeedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count`, {
 					params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
 				});
 				if (totalFeedbacks) {
