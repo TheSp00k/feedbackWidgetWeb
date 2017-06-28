@@ -10,7 +10,6 @@ import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 
 
-
 let apiUrl;
 if (process.env.NODE_ENV == "production") {
 	apiUrl = '//52.211.101.202:3001';
@@ -51,7 +50,6 @@ if (widgetForm) {
 			}
 
 			render() {
-				console.log(this.props);
 				return <div>
 					<form onSubmit={this.handleSubmit}>
 						<div className="form-group">
@@ -90,11 +88,9 @@ if (feedbackListDom) {
 	const title = 'ATSILIEPIMAI';
 
 	class StarSvgRating extends React.Component {
-
 		constructor(props) {
 			super(props);
 		}
-
 		render() {
 			return (
 				<div itemProp="ratingValue" className="feedback-circle">{this.props.totalRating}</div>
@@ -103,14 +99,14 @@ if (feedbackListDom) {
 	}
 
 	class FeedbackListHeader extends React.Component {
-
 		constructor(props) {
 			super(props);
 			this.state = {feedbacks: [], totalRating: null, totalFeedbacks: null};
 		}
 
 		async componentWillMount() {
-			const totalRating = await axios.get(`${apiUrl}/products/totalratingscore?productid=${this.props.productId}`);
+
+			const totalRating = await axios.get(`${apiUrl}/products/totalratingscore?productid=${this.props.productId}&access_token=${this.props.client.token}`);
 			if (totalRating) {
 				this.setState({totalRating: totalRating.data});
 			}
@@ -155,15 +151,14 @@ if (feedbackListDom) {
 			let client = await axios.get(`${apiUrl}/clients/authappid`, {
 				params: {appid: appId, domain: domain}
 			});
-			if (client.id) {
-				this.setState({client: client});
+			if (client.data.id) {
+				this.setState({client: client.data});
 			}
 		}
-		
+
 
 		async loadFeedbacks() {
-			const productId = feedbackListDom.getAttribute('data-producid');
-			let feedbacks = await axios.get(`${apiUrl}/products/${productId}/feedbacks`, {
+			let feedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks?access_token=${this.state.client.token}`, {
 				params: {
 					filter: {
 						where: {and: [{clientid: this.state.client.id}, {totalratingscore: {neq: null}}, {approved: 1}]},
@@ -174,18 +169,17 @@ if (feedbackListDom) {
 				}
 			});
 			this.setState({feedbacks: feedbacks.data});
-			this.setState({productId: productId});
 		}
 
-		async componentDidMount() {
+		async componentWillMount() {
+			const productId = feedbackListDom.getAttribute('data-producid');
+			this.setState({productId: productId});
 			await this.authenticate();
-			// const clientId = feedbackListDom.getAttribute('data-clientid');
-
-			const client = await axios.get(`${apiUrl}/clients/${this.state.client.id}`);
+			const client = await axios.get(`${apiUrl}/clients/${this.state.client.id}?access_token=${this.state.client.token}`);
 			let feedbacks = [];
-			if (client.data.displaywidget) {
+			if (this.state.client.displaywidget) {
 				await this.loadFeedbacks();
-				const totalFeedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count`, {
+				const totalFeedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count?access_token=${this.state.client.token}`, {
 					params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
 				});
 				if (totalFeedbacks) {
@@ -194,13 +188,11 @@ if (feedbackListDom) {
 
 				this.setState({pageCount: Math.ceil(totalFeedbacks.data.count / this.state.perPage)});
 			}
-			this.setState({client: client.data});
 		}
 
 
 		handlePageClick(data) {
 			let selected = data.selected;
-			console.log(this.state, selected);
 			let offset = Math.ceil(selected * 2);
 
 			this.setState({offset: offset}, () => {
@@ -211,7 +203,7 @@ if (feedbackListDom) {
 		render() {
 			if (this.state.client.displaywidget) {
 				const feedbacks = this.state.feedbacks.map((item, i) => {
-					return <div className="feedback-list-block">
+					return <div key={i} className="feedback-list-block">
 						<div className="user-block col-xs-3">
 							<div className="user-name feedback-circle">
 								{item.customer.name.charAt(0)}
@@ -243,26 +235,30 @@ if (feedbackListDom) {
 
 				return (
 					<div className="list-root">
-						<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} productId={this.state.productId}/>
-						<div className="col-xs-12 col-md-8 rating-list">
-							<div className="feedback-list-container">{feedbacks}</div>
-							{this.state.totalFeedbacks > this.state.perPage &&
+						{this.state.totalFeedbacks && this.state.productId &&
+						<div>
+							<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} client={this.state.client} productId={this.state.productId}/>
+							<div className="col-xs-12 col-md-8 rating-list">
+								<div className="feedback-list-container">{feedbacks}</div>
+								{this.state.totalFeedbacks > this.state.perPage &&
 
-							<div className="pagination-container">
-								<ReactPaginate previousLabel={"ankstesnis"}
-											   nextLabel={"kitas"}
-											   breakLabel={<a href="">...</a>}
-											   breakClassName={"break-me"}
-											   pageCount={this.state.pageCount}
-											   marginPagesDisplayed={2}
-											   pageRangeDisplayed={5}
-											   onPageChange={this.handlePageClick}
-											   containerClassName={"pagination modal-4"}
-											   subContainerClassName={"pages pagination"}
-											   activeClassName={"active"}/>
+								<div className="pagination-container">
+									<ReactPaginate previousLabel={"ankstesnis"}
+												   nextLabel={"kitas"}
+												   breakLabel={<a href="">...</a>}
+												   breakClassName={"break-me"}
+												   pageCount={this.state.pageCount}
+												   marginPagesDisplayed={2}
+												   pageRangeDisplayed={5}
+												   onPageChange={this.handlePageClick}
+												   containerClassName={"pagination modal-4"}
+												   subContainerClassName={"pages pagination"}
+												   activeClassName={"active"}/>
+								</div>
+								}
 							</div>
-							}
 						</div>
+						}
 					</div>
 				);
 			} else {
