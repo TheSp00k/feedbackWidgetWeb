@@ -149,7 +149,7 @@ if (feedbackListDom) {
 			const domain = window.location.hostname;
 			const appId = feedbackListDom.getAttribute('data-appid');
 			let client = await axios.get(`${apiUrl}/clients/authappid`, {
-				params: {appid: appId, domain: domain}
+				params: {appid: appId, domain: domain, restriction: 'none'}
 			});
 			if (client.data.id) {
 				this.setState({client: client.data});
