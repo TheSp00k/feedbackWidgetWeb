@@ -106,7 +106,7 @@ if (feedbackListDom) {
 
 		async componentWillMount() {
 
-			const totalRating = await axios.get(`${apiUrl}/products/totalratingscore?productid=${this.props.productId}&access_token=${this.props.client.token}`);
+			const totalRating = await axios.get(`${apiUrl}/products/totalratingscore?productid=${this.props.productId}&access_token=${this.props.accessToken}`);
 			if (totalRating) {
 				this.setState({totalRating: totalRating.data});
 			}
@@ -140,7 +140,8 @@ if (feedbackListDom) {
 
 		constructor(props) {
 			super(props);
-			this.state = {offset: 0, perPage: 10, feedbacks: [], client: {}, productId: null};
+			const appId = feedbackListDom.getAttribute('data-appid');
+			this.state = {offset: 0, perPage: 10, feedbacks: [], clientId: null, accessToken: localStorage.getItem(`${appId}Token`), client: {}, productId: null};
 			this.handlePageClick = this.handlePageClick.bind(this);
 		}
 
@@ -148,17 +149,20 @@ if (feedbackListDom) {
 		async authenticate() {
 			const domain = window.location.hostname;
 			const appId = feedbackListDom.getAttribute('data-appid');
-			let client = await axios.get(`${apiUrl}/clients/authappid`, {
+			let access = await axios.get(`${apiUrl}/clients/authappid`, {
 				params: {appid: appId, domain: domain, restriction: 'none'}
 			});
-			if (client.data.id) {
-				this.setState({client: client.data});
+			if (access.data.id) {
+
+				this.setState({accessToken: access.data.id});
+				this.setState({clientId: access.data.clientid});
+				localStorage.setItem(`${appId}Token`, access.data.id);
 			}
 		}
 
 
 		async loadFeedbacks() {
-			let feedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks?access_token=${this.state.client.token}`, {
+			let feedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks?access_token=${this.state.accessToken}`, {
 				params: {
 					filter: {
 						where: {and: [{clientid: this.state.client.id}, {totalratingscore: {neq: null}}, {approved: 1}]},
@@ -174,12 +178,18 @@ if (feedbackListDom) {
 		async componentWillMount() {
 			const productId = feedbackListDom.getAttribute('data-producid');
 			this.setState({productId: productId});
-			await this.authenticate();
-			const client = await axios.get(`${apiUrl}/clients/${this.state.client.id}?access_token=${this.state.client.token}`);
+			// const appId = feedbackListDom.getAttribute('data-appid');
+			// if (!this.state.accessToken) {
+				await this.authenticate();
+			// }
+
+			const client = await axios.get(`${apiUrl}/clients/${this.state.clientId}?access_token=${this.state.accessToken}`);
+			this.setState({client: client.data});
 			let feedbacks = [];
+			console.log('cia');
 			if (this.state.client.displaywidget) {
 				await this.loadFeedbacks();
-				const totalFeedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count?access_token=${this.state.client.token}`, {
+				const totalFeedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count?access_token=${this.state.accessToken}`, {
 					params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
 				});
 				if (totalFeedbacks) {
@@ -237,7 +247,7 @@ if (feedbackListDom) {
 					<div className="list-root">
 						{this.state.totalFeedbacks && this.state.productId &&
 						<div>
-							<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} client={this.state.client} productId={this.state.productId}/>
+							<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} accessToken={this.state.accessToken} client={this.state.client} productId={this.state.productId}/>
 							<div className="col-xs-12 col-md-8 rating-list">
 								<div className="feedback-list-container">{feedbacks}</div>
 								{this.state.totalFeedbacks > this.state.perPage &&
