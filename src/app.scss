@@ -34,7 +34,7 @@ body {
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box; /* Firefox, other Gecko */
     box-sizing: border-box; /* Opera/IE 8+ */
-    $feedsBorder: 4px solid #e3e3e3;
+    $feedsBorder: 1px solid #e3e3e3;
     $boldFontWeight: 600;
 
     .user-name {
@@ -75,6 +75,12 @@ body {
       margin-bottom: 15px;
       padding-bottom: 10px;
       border-radius: 6px;
+      .rating-row {
+        cursor: pointer;
+      }
+      .rating-row:hover {
+        color: #fa7e28;
+      }
     }
     .rating-list {
       height: inherit;
@@ -89,12 +95,12 @@ body {
         border-bottom: $feedsBorder;
       }
       .feedback-list-block {
-        padding-top: 10px;
-        padding-bottom: 25px;
+        padding: 10px 0;
 
         .feedback-rating-block {
           padding: 5px 0 15px 30px;
           background-color: #f7f6f4;
+          border-radius: 6px;
         }
 
         .feedback-rating-block:after {

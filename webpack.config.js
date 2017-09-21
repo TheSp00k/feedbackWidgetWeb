@@ -2,6 +2,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
+const Uglify = require("uglifyjs-webpack-plugin");
+
+/*
+* 
+*     "build": "babel src -d build && cpx src/*.scss build/",
+ "dev": "webpack-dev-server",
+ "prod": "npm run clean && npm run build && webpack -p",
+ "clean": "rimraf ./dist/* && rimraf ./build/*"
+* */
 
 module.exports = {
 	entry: {
@@ -34,10 +43,6 @@ module.exports = {
 				test: /\.js$/,
 				exclude: /node_modules/,
 				use: 'babel-loader'
-			},
-			{
-				test: /\.pug$/,
-				use: 'pug-loader'
 			}
 		]
 	},
@@ -56,7 +61,7 @@ module.exports = {
 				collapseWhitespace: true
 			},
 			hash: true,
-			template: './src/index.html'
+			template: './src/AB554Q.html'
 		}),
 		new ExtractTextPlugin({
 			filename: 'app.css',
@@ -78,7 +83,7 @@ module.exports = {
 		// 	chunks: ['app', 'stars']
 		// }),
 		new webpack.HotModuleReplacementPlugin(),
-		new webpack.NamedModulesPlugin()
-		
+		new webpack.NamedModulesPlugin(),
+		new Uglify()
 	]
 };
