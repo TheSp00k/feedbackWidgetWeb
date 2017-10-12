@@ -81,7 +81,7 @@ if (widgetForm) {
 }
 
 if (feedbackListDom) {
-	const title = 'ATSILIEPIMAI';
+	const headingTitle = 'ATSILIEPIMAI', formTitle = 'RAŠYTI ATSILIEPIMĄ';
 
 	class StarSvgRating extends React.Component {
 		constructor(props) {
@@ -122,53 +122,58 @@ if (feedbackListDom) {
 			if (this.props.totalRating && this.props.totalFeedbacks) {
 				return (
 					<div className="rating-header">
-						<div className="heading">{title}</div>
-						<div itemProp="aggregateRating" itemScope itemType="http://schema.org/AggregateRating" style={{paddingBottom: '10px'}} className="col-xs-12">
-							<div style={{display: 'inline-block'}}>
-								<StarSvgRating client={this.props.client} totalRating={this.props.totalRating}/>
-							</div>
-							<div style={{paddingLeft: '15px',display: 'inline-block',bottom: '6px', position: 'relative'}}>
-								<ReactStars count={5} edit={false} value={parseFloat(this.props.totalRating).toFixed(0)} half={true} size={'30px'} color1={'#c2c2c2'} color2={'#ffd700'}/>
-								<div style={{color: '#9b999a', paddingLeft: '5px'}}>
-									<span itemProp="reviewCount">{this.props.totalFeedbacks}</span> atsiliepimai
+						<div className="filter-part">
+							<div className="heading">{headingTitle}</div>
+							<div itemProp="aggregateRating" itemScope itemType="http://schema.org/AggregateRating" style={{paddingBottom: '10px'}} className="col-xs-12">
+								<div style={{display: 'inline-block'}}>
+									<StarSvgRating client={this.props.client} totalRating={this.props.totalRating}/>
+								</div>
+								<div style={{paddingLeft: '15px',display: 'inline-block',bottom: '6px', position: 'relative'}}>
+									<ReactStars count={5} edit={false} value={parseFloat(this.props.totalRating).toFixed(0)} half={true} size={'30px'} color1={'#c2c2c2'} color2={'#ffd700'}/>
+									<div style={{color: '#9b999a', paddingLeft: '5px'}}>
+										<span itemProp="reviewCount">{this.props.totalFeedbacks}</span> atsiliepimai
+									</div>
 								</div>
 							</div>
-						</div>
-						<div className="col-xs-12" style={{fontWeight: 600, color: '#9b999a'}}>
-							<table className="rating-filter-table" style={{border: 'none', fontSize: '14px'}}>
-								<tbody>
-								<tr onClick={() => this.filterFeedbacks(5)} className="rating-row">
-									<td className="part-1">5 žv.</td>
-									<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['5'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
-									<td className="part-3">{this.props.starTotals['5']}</td>
-								</tr>
-								<tr onClick={() => this.filterFeedbacks(4)} className="rating-row">
-									<td className="part-1">4 žv.</td>
-									<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['4'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
-									<td className="part-3">{this.props.starTotals['4']}</td>
-								</tr>
-								<tr onClick={() => this.filterFeedbacks(3)} className="rating-row">
-									<td className="part-1">3 žv.</td>
-									<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['3'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
-									<td className="part-3">{this.props.starTotals['3']}</td>
-								</tr>
-								<tr onClick={() => this.filterFeedbacks(2)} className="rating-row">
-									<td className="part-1">2 žv.</td>
-									<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['2'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
-									<td className="part-3">{this.props.starTotals['2']}</td>
-								</tr>
-								<tr onClick={() => this.filterFeedbacks(1)} className="rating-row">
-									<td className="part-1">1 žv.</td>
-									<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['1'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
-									<td className="part-3">{this.props.starTotals['1']}</td>
-								</tr>
-								{ this.props.starsSelected &&
+							<div className="col-xs-12" style={{fontWeight: 600, color: '#9b999a'}}>
+								<table className="rating-filter-table" style={{border: 'none', fontSize: '14px'}}>
+									<tbody>
+									<tr onClick={() => this.filterFeedbacks(5)} className="rating-row">
+										<td className="part-1">5 žv.</td>
+										<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['5'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
+										<td className="part-3">{this.props.starTotals['5']}</td>
+									</tr>
+									<tr onClick={() => this.filterFeedbacks(4)} className="rating-row">
+										<td className="part-1">4 žv.</td>
+										<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['4'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
+										<td className="part-3">{this.props.starTotals['4']}</td>
+									</tr>
+									<tr onClick={() => this.filterFeedbacks(3)} className="rating-row">
+										<td className="part-1">3 žv.</td>
+										<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['3'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
+										<td className="part-3">{this.props.starTotals['3']}</td>
+									</tr>
+									<tr onClick={() => this.filterFeedbacks(2)} className="rating-row">
+										<td className="part-1">2 žv.</td>
+										<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['2'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
+										<td className="part-3">{this.props.starTotals['2']}</td>
+									</tr>
+									<tr onClick={() => this.filterFeedbacks(1)} className="rating-row">
+										<td className="part-1">1 žv.</td>
+										<td className="part-2"><Line style={{width: '100%',height: '20px', maxWidth: '145px'}} percent={this.starPercent(this.props.starTotals['1'])} strokeWidth="4" trailWidth="4" trailColor="#f2f2f2" strokeLinecap="square" strokeColor={this.props.client.themecolor} /></td>
+										<td className="part-3">{this.props.starTotals['1']}</td>
+									</tr>
+									{ this.props.starsSelected &&
 									<tr onClick={() => this.filterFeedbacks(null, true)} className="rating-row">
 										<td style={{paddingTop: '10px', fontWeight: 600, color: 'rgb(181, 179, 180)', paddingBottom: '20px'}} colSpan="3">Žiūrėti visus atsiliepimus</td>
 									</tr>
-								}
-								</tbody>
-							</table>
+									}
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div className="leave-feedback-part">
+							<button style={{margin: '15px 10px'}} className="leave-feedback-btn">Rašyti atsiliepimą</button>
 						</div>
 						<div className="clearfix"></div>
 					</div>
@@ -176,6 +181,69 @@ if (feedbackListDom) {
 			} else {
 				return false;
 			}
+		}
+	}
+
+	class FeedbackFrom extends React.Component {
+		constructor(props) {
+			super(props);
+			this.state = {
+				form: {
+					totalratingscore: 0,
+					commentcontent: '',
+					customer: {
+						email: ''
+					}
+				}
+			};
+			this.handleChange = this.handleChange.bind(this);
+			this.handleSubmit = this.handleSubmit.bind(this);
+		};
+		handleChange(field, parent, e) {
+			// console.log(event);
+			console.log(field, parent, e);
+
+			if (parent) {
+				this.state.form[parent][field] = e.target.value;
+				// this.setState({[this.state.form[parent][field]]: e.target.value});
+			} else {
+				this.state.form[field] = e.target ? e.target.value : e;
+			}
+			console.log(this.state.form);
+			// this.setState({[field]: { ...this.state[field], [name]:e.target.value } });
+			// console.log(e.target.value);
+			// console.log(this.state);
+			// this.setState({[this.state.form[e.target.name]]: event.target.value});
+			// console.log(this.state);
+		};
+
+		handleSubmit(event) {
+			event.preventDefault();
+			console.log(this.state);
+		};
+
+		render() {
+			return (
+				<div className="feedback-form">
+					<div className="heading">{formTitle}</div>
+					<form onSubmit={this.handleSubmit}>
+						<div className="form-group">
+							<div className="form-label">Reitingas:</div>
+							<ReactStars count={5} onChange={(e) => this.handleChange('totalratingscore', null, e)} half={true} size={'30px'} color1={'#c2c2c2'} color2={'#ffd700'}/>
+						</div>
+						<div className="form-group">
+							<div className="form-label">Atsiliepimas:</div>
+							<textarea name="commentcontent" onChange={(e) => this.handleChange('commentcontent', null, e)} id="" cols="30" rows="10"/>
+						</div>
+						<div className="form-group">
+							<div className="form-label">El. pašto adresas:</div>
+							<input onChange={(e) => this.handleChange('email', 'customer', e)} type="text"/>
+						</div>
+						<button type="submit" className="leave-feedback-btn pull-right">Siųsti</button>
+						<div className="clearfix"></div>
+					</form>
+				</div>
+			)
 		}
 	}
 
@@ -246,8 +314,6 @@ if (feedbackListDom) {
 					}
 				})
 			}
-
-
 		};
 
 
@@ -447,6 +513,7 @@ if (feedbackListDom) {
 						{this.state.totalFeedbacks && this.state.productId &&
 						<div>
 							<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} starsSelected={this.state.starsSelected} totalRating={this.state.totalRating} starTotals={this.state.starTotals} filterFeedbacks={this.loadFeedbacks.bind(this)} accessToken={this.state.accessToken} client={this.state.client} productId={this.state.productId}/>
+							<FeedbackFrom/>
 							<div className="rating-list">
 								<div className="feedback-list-container">
 									{this.state.summary &&
@@ -460,16 +527,16 @@ if (feedbackListDom) {
 
 								<div className="pagination-container">
 									<ReactPaginate previousLabel={"ankstesnis"}
-												   nextLabel={"kitas"}
-												   breakLabel={<a href="">...</a>}
-												   breakClassName={"break-me"}
-												   pageCount={this.state.pageCount}
-												   marginPagesDisplayed={2}
-												   pageRangeDisplayed={5}
-												   onPageChange={this.handlePageClick}
-												   containerClassName={"pagination modal-4"}
-												   subContainerClassName={"pages pagination"}
-												   activeClassName={"active"}/>
+									   nextLabel={"kitas"}
+									   breakLabel={<a href="">...</a>}
+									   breakClassName={"break-me"}
+									   pageCount={this.state.pageCount}
+									   marginPagesDisplayed={2}
+									   pageRangeDisplayed={5}
+									   onPageChange={this.handlePageClick}
+									   containerClassName={"pagination modal-4"}
+									   subContainerClassName={"pages pagination"}
+									   activeClassName={"active"}/>
 								</div>
 								}
 							</div>
@@ -488,7 +555,3 @@ if (feedbackListDom) {
 	);
 
 }
-
-
-
-
