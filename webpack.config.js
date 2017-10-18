@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
-const Uglify = require("uglifyjs-webpack-plugin");
+// const Uglify = require("uglifyjs-webpack-plugin");
 
 /*
 * 
@@ -48,7 +48,7 @@ module.exports = {
 	},
 	devServer: {
 		contentBase: path.join(__dirname, 'dist'),
-		compress: true,
+		compress: false,
 		port: 9000,
 		hot: true,
 		stats: 'errors-only',
@@ -83,7 +83,7 @@ module.exports = {
 		// 	chunks: ['app', 'stars']
 		// }),
 		new webpack.HotModuleReplacementPlugin(),
-		new webpack.NamedModulesPlugin(),
-		new Uglify()
+		new webpack.NamedModulesPlugin()
+		// new Uglify()
 	]
 };

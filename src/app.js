@@ -9,6 +9,7 @@ import axios from 'axios';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 import { Line } from 'rc-progress';
+import MdClose from 'react-icons/lib/md/close';
 
 
 let apiUrl;
@@ -18,67 +19,7 @@ if (process.env.NODE_ENV == "production") {
 	apiUrl = 'http://localhost:3000';
 }
 
-var widgetForm = document.getElementById('feedback-widget-form');
 var feedbackListDom = document.getElementById('feedback-widget-list');
-
-if (widgetForm) {
-	var disabled = widgetForm.getAttribute('widget-disabled');
-	if (disabled) {
-		widgetForm.style.display = 'none';
-	} else {
-		class WidgetFormComponent extends React.Component {
-
-			constructor(props) {
-				super(props);
-				this.state = {value: ''};
-				this.handleChange = this.handleChange.bind(this);
-				this.handleSubmit = this.handleSubmit.bind(this);
-			}
-
-
-			handleChange(event) {
-				this.setState({value: event.target.value});
-			}
-
-			handleSubmit(event) {
-				alert('A name was submitted: ' + this.state.value);
-				event.preventDefault();
-			}
-
-			render() {
-				return <div>
-					<form onSubmit={this.handleSubmit}>
-						<div className="form-group">
-							<label htmlFor="name">Vertinimas</label>
-							<ReactStars count={5} value={1} half={true} size={'25px'} color1={'#c2c2c2'} color2={'#ffd700'} onChange={this.handleChange}/>
-						</div>
-						<div className="form-group">
-							<label htmlFor="name">Vardas</label>
-							<input id="name" type="text"/>
-						</div>
-						<div className="form-group">
-							<label htmlFor="surname">Pavardė</label>
-							<input id="surname" type="text"/>
-						</div>
-						<div className="form-group">
-							<label htmlFor="header">Pavadinimas</label>
-							<input id="header" type="text"/>
-						</div>
-						<div className="form-group">
-							<label htmlFor="comment">Detalus aprašymas</label>
-							<input id="comment" type="text"/>
-						</div>
-						<button type="submit" className="btn btn-primary btn-lg">sended</button>
-					</form>
-				</div>;
-			}
-		}
-		ReactDOM.render(
-			<WidgetFormComponent />,
-			widgetForm
-		);
-	}
-}
 
 if (feedbackListDom) {
 	const headingTitle = 'ATSILIEPIMAI', formTitle = 'RAŠYTI ATSILIEPIMĄ';
@@ -100,14 +41,6 @@ if (feedbackListDom) {
 			this.state = {feedbacks: [], totalFeedbacks: null};
 			this.filterFeedbacks = this.filterFeedbacks.bind(this);
 		}
-
-		// async componentWillMount() {
-			// const totals = await axios.get(`${apiUrl}/products/totals?productid=${this.props.productId}&access_token=${this.props.accessToken}`);
-			// if (totals) {
-			// 	this.setState({totalRating: totals.data.totalratingscore});
-			// 	this.setState({starTotals: totals.data.startotals});
-			// }
-		// };
 
 		filterFeedbacks(stars, reset) {
 			this.props.filterFeedbacks(stars ? {totalratingscore: stars} : null, reset);
@@ -173,7 +106,7 @@ if (feedbackListDom) {
 							</div>
 						</div>
 						<div className="leave-feedback-part">
-							<button style={{margin: '15px 10px'}} className="leave-feedback-btn">Rašyti atsiliepimą</button>
+							<button style={{margin: '15px 10px'}} onClick={this.props.showFeedbackForm} className="leave-feedback-btn">Rašyti atsiliepimą</button>
 						</div>
 						<div className="clearfix"></div>
 					</div>
@@ -189,74 +122,135 @@ if (feedbackListDom) {
 			super(props);
 			this.state = {
 				form: {
-					totalratingscore: 0,
-					commentcontent: '',
+					totalratingscore: null,
+					commentcontent: null,
 					customer: {
-						email: ''
+						email: null
 					}
-				}
+				},
+				thankyouSlideActive: false,
+				ratingError: null,
+				commentContentError: null,
+				emailError: null
 			};
 			this.handleChange = this.handleChange.bind(this);
 			this.handleSubmit = this.handleSubmit.bind(this);
 		};
 		handleChange(field, parent, e) {
-			// console.log(event);
-			console.log(field, parent, e);
-
 			if (parent) {
 				this.state.form[parent][field] = e.target.value;
-				// this.setState({[this.state.form[parent][field]]: e.target.value});
 			} else {
 				this.state.form[field] = e.target ? e.target.value : e;
 			}
-			console.log(this.state.form);
-			// this.setState({[field]: { ...this.state[field], [name]:e.target.value } });
-			// console.log(e.target.value);
-			// console.log(this.state);
-			// this.setState({[this.state.form[e.target.name]]: event.target.value});
-			// console.log(this.state);
+		};
+
+		validateForm() {
+			let formValid = true;
+			let commentContentError = null;
+			let ratingError = null;
+			let emailError = null;
+
+			if (!this.state.form.commentcontent || this.state.form.commentcontent == '') {
+				commentContentError = 'Šis laukas yra privalomas';
+				formValid = false;
+			}
+			if (!this.state.form.totalratingscore || this.state.form.totalratingscore == 0) {
+				ratingError = 'Šis laukas yra privalomas';
+				formValid = false;
+			}
+
+			const emailRe = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			let valid = emailRe.test(this.state.form.customer.email);
+			if (!this.state.form.customer.email || this.state.form.customer.email == '') {
+				emailError = 'Šis laukas yra privalomas';
+				formValid = false;
+			} else if (!valid) {
+				emailError = 'Neteisingas elektroninio pašto adresas';
+				formValid = false;
+			}
+			this.setState({commentContentError: commentContentError, ratingError: ratingError, emailError: emailError});
+			return formValid;
 		};
 
 		handleSubmit(event) {
 			event.preventDefault();
-			console.log(this.state);
+			let formValid = this.validateForm();
+			if (!formValid) {
+				return;
+			}
+			const photourl = feedbackListDom.getAttribute('data-photourl');
+			const name = feedbackListDom.getAttribute('data-name');
+
+			axios.post(`${apiUrl}/feedbacks/sendfeedbackfromwidget`, {
+				clientid: this.props.clientId,
+				productnumber: this.props.productnumber,
+				commentcontent: this.state.form.commentcontent,
+				totalratingscore: this.state.form.totalratingscore,
+				name: name,
+				photourl: photourl,
+				customer: {
+					email: this.state.form.customer.email
+				}
+			}).then((response) => {
+				this.setState({thankyouSlideActive: true});
+			}).catch((err) => {
+				console.log(err);
+			});
 		};
 
 		render() {
 			return (
 				<div className="feedback-form">
 					<div className="heading">{formTitle}</div>
-					<form onSubmit={this.handleSubmit}>
-						<div className="form-group">
-							<div className="form-label">Reitingas:</div>
-							<ReactStars count={5} onChange={(e) => this.handleChange('totalratingscore', null, e)} half={true} size={'30px'} color1={'#c2c2c2'} color2={'#ffd700'}/>
-						</div>
-						<div className="form-group">
-							<div className="form-label">Atsiliepimas:</div>
-							<textarea name="commentcontent" onChange={(e) => this.handleChange('commentcontent', null, e)} id="" cols="30" rows="10"/>
-						</div>
-						<div className="form-group">
-							<div className="form-label">El. pašto adresas:</div>
-							<input onChange={(e) => this.handleChange('email', 'customer', e)} type="text"/>
-						</div>
-						<button type="submit" className="leave-feedback-btn pull-right">Siųsti</button>
-						<div className="clearfix"></div>
-					</form>
+					<div className="form-container">
+						{this.state.thankyouSlideActive &&
+							<div style={{color: this.props.themecolor}} className="thankyou-slide">
+								<div onClick={this.props.showFeedbackForm} className="closeForm"><MdClose/></div>
+								<div>Ačiū, už atsiliepimą!</div>
+							</div>
+						}
+						<form onSubmit={this.handleSubmit}>
+							<div className={"form-group " + (this.state.ratingError ? 'error-label' : '')}>
+								<div className="form-label">*Reitingas:</div>
+								<ReactStars count={5} onChange={(e) => this.handleChange('totalratingscore', null, e)} half={true} size={'30px'} color1={'#c2c2c2'} color2={'#ffd700'}/>
+								<span className="error-text">{this.state.ratingError}</span>
+							</div>
+							<div className={"form-group " + (this.state.commentContentError ? 'error-label' : '')}>
+								<div className={"form-label"} htmlFor="commentcontent">*Atsiliepimas:</div>
+								<textarea name="commentcontent" onChange={(e) => this.handleChange('commentcontent', null, e)} id="commentcontent"/>
+								<span className="error-text">{this.state.commentContentError}</span>
+							</div>
+							<div className={"form-group " + (this.state.emailError ? 'error-label' : '')}>
+								<div className="form-label" htmlFor="email">*El. pašto adresas:</div>
+								<input onChange={(e) => this.handleChange('email', 'customer', e)} id="email" type="text"/>
+								<span className="error-text">{this.state.emailError}</span>
+							</div>
+							<button type="submit" className="leave-feedback-btn pull-right">Siųsti</button>
+							<div className="clearfix"></div>
+						</form>
+					</div>
 				</div>
 			)
 		}
 	}
 
 	class FeedbackList extends React.Component {
-
 		constructor(props) {
 			super(props);
 			const appId = feedbackListDom.getAttribute('data-appid');
-			this.state = {offset: 0, perPage: 10, countForPaging: null, feedbacks: [], clientId: null, accessToken: localStorage.getItem(`${appId}Token`), client: {}, productId: null, product: null, summary: null};
+			this.state = {formVisible: false, offset: 0, perPage: 10, countForPaging: null, feedbacks: [], clientId: null, accessToken: localStorage.getItem(`${appId}Token`), client: {}, productId: null, product: null, summary: null};
 			this.handlePageClick = this.handlePageClick.bind(this);
 			this.loadFeedbacks = this.loadFeedbacks.bind(this);
+			this.showFeedbackForm = this.showFeedbackForm.bind(this);
 		};
 
+		showFeedbackForm() {
+			if (this.state.formVisible) {
+				this.setState({formVisible: false});
+			} else {
+				this.setState({formVisible: true});
+			}
+		};
 
 		authenticate() {
 			const domain = window.location.hostname;
@@ -270,16 +264,7 @@ if (feedbackListDom) {
 			return axios.get(`${apiUrl}/clients/authappid`, {
 				params: authParams
 			});
-
-			//////////////////////////
-			// if (access.data.id) {
-			//
-			// 	this.setState({accessToken: access.data.id});
-			// 	this.setState({clientId: access.data.clientid});
-			// 	localStorage.setItem(`${appId}Token`, access.data.id);
-			// }
 		};
-
 
 		loadFeedbacks(filter, reset) {
 			let ratingScoreFilter = {neq: null};
@@ -315,8 +300,6 @@ if (feedbackListDom) {
 				})
 			}
 		};
-
-
 		getClient() {
 			return axios.get(`${apiUrl}/clients/${this.state.clientId}?access_token=${this.state.accessToken}`);
 		}
@@ -349,11 +332,6 @@ if (feedbackListDom) {
 		componentWillMount() {
 			const productId = feedbackListDom.getAttribute('data-productid');
 			this.setState({productId: productId});
-
-			// const appId = feedbackListDom.getAttribute('data-appid');
-			// if (!this.state.accessToken) {
-
-
 			this.authenticate()
 				.then((access) => {
 					if (access.data.id) {
@@ -366,18 +344,6 @@ if (feedbackListDom) {
 							this.setState({client: results[0].data, product: results[1].data[0], productId: results[1].data[0].id});
 							let feedbacks = [];
 							if (this.state.client.displaywidget) {
-
-								// let ratingScoreFilter = {neq: null};
-								// let setSummary = false;
-								// if (filter && filter.totalratingscore) {
-								// 	ratingScoreFilter = filter.totalratingscore;
-								// 	setSummary = true;
-								// 	this.state.offset = 0;
-								// } else {
-								// 	this.setState({starsSelected: false});
-								// }
-
-
 								axios.all([this.loadFeedbacks(), this.getTotalFeedbacks(), this.getTotals()])
 									.then((results) => {
 										if (results[0].data) {
@@ -394,70 +360,9 @@ if (feedbackListDom) {
 											this.setState({totalRating: results[2].data.totalratingscore, starTotals: results[2].data.startotals});
 										}
 									});
-								// this.loadFeedbacks()
-								// 	.then((feedbacks) => {
-								// 		this.setState({feedbacks: feedbacks.data});
-								// 		this.setState({summary: null});
-								// 		this.setState({starsSelected: false});
-								// 		this.setState({countForPaging: null});
-								// 	});
-								// this.getTotalFeedbacks()
-								// 	.then(() => {
-								//
-								// 	})
-								// const totalFeedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count?access_token=${this.state.accessToken}`, {
-								// 	params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
-								// });
-								// if (totalFeedbacks) {
-								// 	this.setState({totalFeedbacks: totalFeedbacks.data.count});
-								// }
-								//TODO pagination and countForPaging bug!!!
-								// this.setState({pageCount: Math.ceil((this.state.countForPaging || totalFeedbacks.data.count) / this.state.perPage)});
-								// this.setState({pageCount: Math.ceil(totalFeedbacks.data.count / this.state.perPage)});
-								// const totals = await axios.get(`${apiUrl}/products/totals?productid=${this.state.productId}&access_token=${this.state.accessToken}`);
-								// if (totals) {
-								// 	this.setState({totalRating: totals.data.totalratingscore, starTotals: totals.data.startotals});
-								// }
 							}
 						});
 				});
-
-
-				// await this.authenticate();
-			// }
-
-
-			// const client = await axios.get(`${apiUrl}/clients/${this.state.clientId}?access_token=${this.state.accessToken}`);
-			// const product = await axios.get(`${apiUrl}/products?access_token=${this.state.accessToken}`, {
-			// 	params: {
-			// 		filter: {
-			// 			where: {
-			// 				and: [
-			// 					{clientid: this.state.clientId},
-			// 					{productnumber: productId}
-			// 				]
-			// 			}
-			// 		}
-			// 	}
-			// });
-			// this.setState({client: client.data, product: product.data[0], productId: product.data[0].id});
-			// let feedbacks = [];
-			// if (this.state.client.displaywidget) {
-			// 	await this.loadFeedbacks();
-			// 	const totalFeedbacks = await axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count?access_token=${this.state.accessToken}`, {
-			// 		params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
-			// 	});
-			// 	if (totalFeedbacks) {
-			// 		this.setState({totalFeedbacks: totalFeedbacks.data.count});
-			// 	}
-			// 	//TODO pagination and countForPaging bug!!!
-			// 	this.setState({pageCount: Math.ceil((this.state.countForPaging || totalFeedbacks.data.count) / this.state.perPage)});
-			// 	// this.setState({pageCount: Math.ceil(totalFeedbacks.data.count / this.state.perPage)});
-			// 	const totals = await axios.get(`${apiUrl}/products/totals?productid=${this.state.productId}&access_token=${this.state.accessToken}`);
-			// 	if (totals) {
-			// 		this.setState({totalRating: totals.data.totalratingscore, starTotals: totals.data.startotals});
-			// 	}
-			// }
 		};
 
 
@@ -482,11 +387,11 @@ if (feedbackListDom) {
 					return <div key={i} className="feedback-list-block">
 						<div className="user-block">
 							<div style={{backgroundColor: this.state.client.themecolor}} className="user-name feedback-circle">
-								{item.customer.name.charAt(0)}
+								{item.customer.name && item.customer.surname ? item.customer.name.charAt(0) : item.customer.secretemail.charAt(0)}
 							</div>
 							<div className="clearfix"></div>
 							<div className="user-name">
-								{item.customer.name} {item.customer.surname.charAt(0)}.
+								{item.customer.name && item.customer.surname ? item.customer.name : item.customer.secretemail} {item.customer.name && item.customer.surname ? item.customer.surname.charAt(0) + '.' : ''}
 							</div>
 							<div className="feedback-accepted-buyer">
 								{item.purchased ? 'Patvirtintas pirkėjas' : 'Nepatvirtintas pirkėjas'}
@@ -512,8 +417,13 @@ if (feedbackListDom) {
 					<div className="list-root">
 						{this.state.totalFeedbacks && this.state.productId &&
 						<div>
-							<FeedbackListHeader totalFeedbacks={this.state.totalFeedbacks} starsSelected={this.state.starsSelected} totalRating={this.state.totalRating} starTotals={this.state.starTotals} filterFeedbacks={this.loadFeedbacks.bind(this)} accessToken={this.state.accessToken} client={this.state.client} productId={this.state.productId}/>
-							<FeedbackFrom/>
+							<FeedbackListHeader showFeedbackForm={this.showFeedbackForm} totalFeedbacks={this.state.totalFeedbacks} starsSelected={this.state.starsSelected} totalRating={this.state.totalRating} starTotals={this.state.starTotals} filterFeedbacks={this.loadFeedbacks.bind(this)} accessToken={this.state.accessToken} client={this.state.client} productId={this.state.productId}/>
+							{
+								this.state.formVisible
+									? <FeedbackFrom showFeedbackForm={this.showFeedbackForm} clientId={this.state.clientId} themecolor={this.state.client.themecolor} productnumber={this.state.product.productnumber} />
+									: null
+							}
+
 							<div className="rating-list">
 								<div className="feedback-list-container">
 									{this.state.summary &&
@@ -553,5 +463,4 @@ if (feedbackListDom) {
 		<FeedbackList/>,
 		feedbackListDom
 	);
-
 }
