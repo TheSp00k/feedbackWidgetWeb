@@ -14,7 +14,7 @@ const webpack = require('webpack');
 
 module.exports = {
 	entry: {
-		app: ['./src/app.js', './src/modules/react-stars.js']
+		app: ['babel-polyfill', './src/app.js', './src/modules/react-stars.js']
 		// stars: './src/modules/react-stars.js'
 	},
 	output: {

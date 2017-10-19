@@ -36,7 +36,6 @@ body {
 
     .feedback-form {
       margin-bottom: 30px;
-      max-width: 550px;
       .heading {
         font-size: 16px;
         font-weight: 600;
@@ -147,24 +146,17 @@ body {
         max-width: 300px;
         float: left;
       }
-      //.leave-feedback-part {
-      //  float: left;
-      //  .leave-feedback-btn {
-      //    background-color: #cbc9ca;
-      //    color: #fff;
-      //    font-weight: 600;
-      //    border-radius: 5px;
-      //    padding: 10px 30px;
-      //    border: none;
-      //    margin: 15px 10px;
-      //  }
-      //}
+      .leave-feedback-part {
+		align-self: start;
+		margin-right: 10px;
+      }
       border: $feedsBorder;
       margin-bottom: 15px;
       padding-bottom: 10px;
       border-radius: 6px;
-      max-width: 510px;
-      display: block;
+	  display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
       .rating-row {
         cursor: pointer;
       }

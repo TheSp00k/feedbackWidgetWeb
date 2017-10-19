@@ -2,6 +2,7 @@ const bootstrap = require('./bootstrap.scss');
 const bootstrapTheme = require('./bootstrap-theme.scss');
 const css = require('./app.scss');
 
+import "babel-polyfill";
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import ReactStars from './modules/react-stars';
@@ -108,7 +109,6 @@ if (feedbackListDom) {
 						<div className="leave-feedback-part">
 							<button style={{margin: '15px 10px'}} onClick={this.props.showFeedbackForm} className="leave-feedback-btn">Rašyti atsiliepimą</button>
 						</div>
-						<div className="clearfix"></div>
 					</div>
 				);
 			} else {

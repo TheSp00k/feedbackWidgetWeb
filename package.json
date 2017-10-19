@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.15.3",
+    "babel-polyfill": "^6.26.0",
     "cpx": "^1.5.0",
     "moment": "^2.18.1",
     "rc-progress": "^2.2.2",
