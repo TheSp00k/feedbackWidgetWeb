@@ -5,36 +5,39 @@ const css = require('./app.scss');
 import "babel-polyfill";
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import ReactStars from './modules/react-stars';
+import AppConstants from './constants.js';
+import ReactStars from './modules/ReactStars';
+import StarSvgRating from './modules/StarSvgRating';
+import ReviewForm from './modules/ReviewForm';
+import ReviewHeader from './modules/ReviewHeader';
+import ReviewList from './modules/ReviewList';
 import axios from 'axios';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 import { Line } from 'rc-progress';
 import MdClose from 'react-icons/lib/md/close';
 
-
-let apiUrl;
-if (process.env.NODE_ENV == "production") {
-	apiUrl = 'http://52.211.101.202:3001';
+let constants;
+if (process.env.NODE_ENV) {
+	constants = AppConstants[process.env.NODE_ENV];
 } else {
-	apiUrl = 'http://localhost:3000';
+	constants = AppConstants['development'];
 }
 
 var feedbackListDom = document.getElementById('feedback-widget-list');
 
 if (feedbackListDom) {
 	const headingTitle = 'ATSILIEPIMAI', formTitle = 'RAŠYTI ATSILIEPIMĄ';
-
-	class StarSvgRating extends React.Component {
-		constructor(props) {
-			super(props);
-		}
-		render() {
-			return (
-				<div itemProp="ratingValue" style={{backgroundColor: this.props.client.themecolor}} className="feedback-circle">{this.props.totalRating}</div>
-			)
-		}
-	}
+	// class StarSvgRating extends React.Component {
+	// 	constructor(props) {
+	// 		super(props);
+	// 	}
+	// 	render() {
+	// 		return (
+	// 			<div itemProp="ratingValue" style={{backgroundColor: this.props.client.themecolor}} className="feedback-circle">{this.props.totalRating}</div>
+	// 		)
+	// 	}
+	// }
 
 	class FeedbackListHeader extends React.Component {
 		constructor(props) {
@@ -181,7 +184,7 @@ if (feedbackListDom) {
 			const photourl = feedbackListDom.getAttribute('data-photourl');
 			const name = feedbackListDom.getAttribute('data-name');
 
-			axios.post(`${apiUrl}/feedbacks/sendfeedbackfromwidget`, {
+			axios.post(`${constants.apiUrl}/feedbacks/sendfeedbackfromwidget`, {
 				clientid: this.props.clientId,
 				productnumber: this.props.productnumber,
 				commentcontent: this.state.form.commentcontent,
@@ -261,7 +264,7 @@ if (feedbackListDom) {
 				authParams.accesstoken = this.state.accessToken;
 			}
 			this.setState({appId, appId});
-			return axios.get(`${apiUrl}/clients/authappid`, {
+			return axios.get(`${constants.apiUrl}/clients/authappid`, {
 				params: authParams
 			});
 		};
@@ -271,7 +274,7 @@ if (feedbackListDom) {
 			if ((filter && filter.totalratingscore) || reset) {
 				ratingScoreFilter = filter ? filter.totalratingscore : ratingScoreFilter;
 				this.state.offset = 0;
-				axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks?access_token=${this.state.accessToken}`, {
+				axios.get(`${constants.apiUrl}/products/${this.state.productId}/feedbacks?access_token=${this.state.accessToken}`, {
 					params: {
 						filter: {
 							where: {and: [{clientid: this.state.client.id}, {totalratingscore: ratingScoreFilter}, {approved: 1}]},
@@ -288,7 +291,7 @@ if (feedbackListDom) {
 				});
 			} else {
 				this.setState({starsSelected: false});
-				return axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks?access_token=${this.state.accessToken}`, {
+				return axios.get(`${constants.apiUrl}/products/${this.state.productId}/feedbacks?access_token=${this.state.accessToken}`, {
 					params: {
 						filter: {
 							where: {and: [{clientid: this.state.client.id}, {totalratingscore: ratingScoreFilter}, {approved: 1}]},
@@ -301,11 +304,11 @@ if (feedbackListDom) {
 			}
 		};
 		getClient() {
-			return axios.get(`${apiUrl}/clients/${this.state.clientId}?access_token=${this.state.accessToken}`);
+			return axios.get(`${constants.apiUrl}/clients/${this.state.clientId}?access_token=${this.state.accessToken}`);
 		}
 
 		getProduct(productId) {
-			return axios.get(`${apiUrl}/products?access_token=${this.state.accessToken}`, {
+			return axios.get(`${constants.apiUrl}/products?access_token=${this.state.accessToken}`, {
 				params: {
 					filter: {
 						where: {
@@ -320,13 +323,13 @@ if (feedbackListDom) {
 		}
 
 		getTotalFeedbacks() {
-			return axios.get(`${apiUrl}/products/${this.state.productId}/feedbacks/count?access_token=${this.state.accessToken}`, {
+			return axios.get(`${constants.apiUrl}/products/${this.state.productId}/feedbacks/count?access_token=${this.state.accessToken}`, {
 				params: {where: {and: [{totalratingscore: {neq: null}}, {approved: 1}]}}
 			});
 		}
 
 		getTotals() {
-			return axios.get(`${apiUrl}/products/totals?productid=${this.state.productId}&access_token=${this.state.accessToken}`);
+			return axios.get(`${constants.apiUrl}/products/totals?productid=${this.state.productId}&access_token=${this.state.accessToken}`);
 		}
 
 		componentWillMount() {
